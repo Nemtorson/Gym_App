@@ -11,7 +11,7 @@ import re
 
 
 global path
-path = r"C:\Users\Max\gym_app\gym_app_data.xlsx"
+path = r"<insert path to where your excel file would be"
 def create_base():
     workbook = openpyxl.Workbook()
     sheet = workbook.active
@@ -88,7 +88,7 @@ root.title("Gym_App")
 frame = tk.Frame(root)
 frame.pack()
 
-image = Image.open("ronnie_coleman.jpg")  # Replace with the actual path to your image
+image = Image.open("ronnie_coleman.jpg")  #replace with the actual path to your image
 background_image = ImageTk.PhotoImage(image)
 
 

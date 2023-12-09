@@ -9,30 +9,49 @@ import os
 import re
 
 
-
 global path
 path = r"<insert path to where your excel file would be"
-def create_base():
-    workbook = openpyxl.Workbook()
-    sheet = workbook.active
-    sheet['A1'] = 'Date'
-    sheet['B1'] = 'Name'
-    sheet['C1'] = 'Series'
-    sheet['D1'] = 'Reps'
-    sheet['E1'] = 'Weight'
-    workbook.save('gym_app_data.xlsx')
-    #never input into row 1 or space (1, 1)
 
+
+def create_base():
+    try:
+        workbook = openpyxl.load_workbook(path)
+        sheet = workbook.active
+        print("File with data already exists")
+    
+    except:
+        workbook = openpyxl.Workbook()
+        sheet = workbook.active
+         
+        sheet['A1'] = 'Date'
+        sheet['B1'] = 'Name'
+        sheet['C1'] = 'Series'
+        sheet['D1'] = 'Reps'
+        sheet['E1'] = 'Weight'
+        print("New file created")
+    workbook.save('gym_app_data.xlsx')
+#if its possible to open an existing file, then dont create a new one
 create_base()
+
+
 def read_value(date):
     workbook = openpyxl.load_workbook(path)
     sheet = workbook.active
-    for row in sheet.iter_rows(min_row = 1, min_col = 1, max_row = sheet.max_row, max_col = 1):
-        if row[0].value == date:
-            print(f"Date: {row[0].value}, Name: {row[0].offset(column=1).value}, "
-                f"Series: {row[0].offset(column=2).value}, Reps: {row[0].offset(column=3).value}, "
-                f"Weight: {row[0].offset(column=4).value}")
-            
+    i = 2
+    for cell in sheet.iter_rows(min_row = 1, min_col = 1, max_row = sheet.max_row, max_col = 1):
+        cell = sheet.cell(i, 1).value
+        if cell == date:
+            for row in sheet.iter_rows(min_row = i, min_col = 1, max_row = sheet.max_row, max_col = 5):
+                print(f"Name: {row[0].offset(column=1).value}, "
+                          f"Series: {row[0].offset(column=2).value}, Reps: {row[0].offset(column=3).value}, "
+                          f"Weight: {row[0].offset(column=4).value}")
+                break
+        i += 1        
+#format dd.mm.yyyy   
+    
+
+#read_value("09.12.2023")
+
 
 def add_value(name, series, reps, weights):
 
@@ -68,6 +87,8 @@ def add_value(name, series, reps, weights):
 def add_value_help():
     return lambda : add_value(str(entry_name.get()), float(entry_series.get()), float(entry_reps.get()), float(entry_weights.get()))
 
+def read_value_help():
+    return lambda : read_value(str(entry_date.get()))
 
 def center_image(canvas, img):
     canvas_width = canvas.winfo_width()
@@ -88,11 +109,10 @@ root.title("Gym_App")
 frame = tk.Frame(root)
 frame.pack()
 
-image = Image.open("ronnie_coleman.jpg")  #replace with the actual path to your image
+image = Image.open("ronnie_coleman.jpg")  # Replace with the actual path to your image
 background_image = ImageTk.PhotoImage(image)
 
 
-# Create labels and entry fields
 label_name = Label(frame, text = "Name:")
 label_name.pack()
 
@@ -120,6 +140,12 @@ entry_weights.pack()
 button_add = Button(frame, text = "INSERT THEM GAINS BOI", command = add_value_help())
 button_add.pack()
 
+entry_date = Entry(frame)
+entry_date.pack()
+
+button_read = Button(frame, text = "See training on date", command = read_value_help())
+button_read.pack()
+
 display_label = Label(frame, text = "", font = ("Arial", 12))
 display_label.pack()
 
@@ -127,6 +153,6 @@ canvas = tk.Canvas(frame, height = 600, width = 1200, bg="#131314")
 canvas.pack(expand = True, fill = tk.BOTH)
 
 canvas.bind("<Configure>", on_canvas_resize)
-center_image(canvas, background_image)
+
 
 root.mainloop()
